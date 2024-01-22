@@ -1,0 +1,46 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ProveedorApi.Models;
+
+public class OrdenCompra
+{
+    [Required]
+    public string orden_compra { get; set; } = null!;
+    [Required]
+    public string ruc { get; set; } = null!;
+    public string moneda { get; set; } = null!;
+    [Column(TypeName = "date")]
+    public DateTime fecha { get; set; }
+    [Column(TypeName = "date")]
+    public DateTime fecha_emision { get; set; }
+    [Column(TypeName = "date")]
+    public DateTime fecha_cotizacion { get; set; }
+    [Column(TypeName = "date")]
+    public DateTime fecha_ofrecida { get; set; }
+    [Column(TypeName = "date")]
+    public DateTime fecha_requerida { get; set; }
+    [Column(TypeName = "numeric(18,2)")]
+    public decimal total_mercaderia { get; set; }
+    [Column(TypeName = "numeric(18,2)")]
+    public decimal total_impuesto { get; set; }
+    [Column(TypeName = "numeric(18,2)")]
+    public decimal total_a_comprar { get; set; }
+    public string estado { get; set; } = null!;
+    public string observaciones { get; set; } = null!;
+    public string confirmada { get; set; } = null!;
+    public string active { get; set; } = null!;
+    public string? created_by { get; set; }
+    [Column(TypeName = "datetime")]
+    public DateTime created_at { get; set; }
+    public string? updated_by { get; set; }
+    [Column(TypeName = "datetime")]
+    public DateTime? updated_at { get; set; }
+    public string? deleted_by { get; set; }
+    [Column(TypeName = "datetime")]
+    public DateTime? deleted_at { get; set; }
+}
+
+
+
+
