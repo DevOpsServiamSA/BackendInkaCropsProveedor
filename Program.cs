@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProveedorApi;
 using ProveedorApi.Data;
+using ProveedorApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +17,7 @@ string[] cors = builder.Configuration["Cors"].Split(";");
 /*Configuracion*/
 AppConfig.Configuracion.Website = builder.Configuration["appConfig:Configuracion:Website"];
 AppConfig.Configuracion.CarpetaArchivos = builder.Configuration["appConfig:Configuracion:CarpetaArchivos"];
+AppConfig.Configuracion.CarpetaArchivosBCTS = builder.Configuration["appConfig:Configuracion:CarpetaArchivosBCTS"];
 AppConfig.Configuracion.DestinoRobotMail = builder.Configuration["appConfig:Configuracion:DestinoRobotMail"];
 AppConfig.Configuracion.DestinoCompraMail = builder.Configuration["appConfig:Configuracion:DestinoCompraMail"];
 AppConfig.Configuracion.EnableSSLMail = Convert.ToBoolean(builder.Configuration["appConfig:Configuracion:EnableSSLMail"]);
@@ -59,6 +61,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ProveedorContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("Proveedor")));
 builder.Services.AddDbContext<TransporteContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("Transporte")));
 builder.Services.AddDbContext<ExactusExtContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("ExactusExt")));
+builder.Services.AddSingleton<RecaptchaService>(sp => new RecaptchaService(sp.GetRequiredService<IConfiguration>().GetValue<string>("Recaptcha:Secret")));
 
 
 builder.Services.AddAuthentication(x =>

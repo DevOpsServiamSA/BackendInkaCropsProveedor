@@ -6,4 +6,5 @@ public class Authentication
     public string username { get; set; } = null!;
     public string password { get; set; } = null!;
     public bool isproveedor { get; set; }
+    public string recaptcha { get; set; } = null!;
 }

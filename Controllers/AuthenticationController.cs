@@ -16,17 +16,26 @@ public class AuthenticationController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly ProveedorContext _context;
-    public AuthenticationController(IConfiguration configuration, ProveedorContext context)
+    private readonly RecaptchaService _recaptchaService; // Agrega esta línea
+
+    public AuthenticationController(IConfiguration configuration, ProveedorContext context, RecaptchaService recaptchaService)
     {
         _config = configuration;
         _context = context;
+        _recaptchaService = recaptchaService; 
     }
     [HttpPost]
     public async Task<IActionResult> PostAuth(Authentication auth)
     {
+        
+        var recaptchaResponse = await _recaptchaService.ValidateRecaptcha(auth.recaptcha);
+        if (!recaptchaResponse.Success)
+        {
+            return BadRequest(new { message = "Verificación de reCAPTCHA fallida." });
+        }
+        
         string message = Validar(auth);
         if (message.Trim().Length > 0) return Ok(new { message });
-        //
 
         string[] lAuthResult = await Authenticate(auth);
         //

@@ -6,6 +6,7 @@ using ProveedorApi.Models;
 using ProveedorApi.Models.ContentResponse;
 using ProveedorApi.Services;
 
+
 namespace ProveedorApi.Controllers;
 
 [Route("api/[controller]")]
@@ -108,6 +109,7 @@ public class OrdenCompraRequisitoController : _BaseController
         var _path = Path.Combine(AppConfig.Configuracion.CarpetaArchivos, rucProvSession);
 
         bool status = await UtilityHelper.UploadFormFileAsync(_path, _filename, _file);
+        
         if (!status) return Conflict(new { msg = "Error: No se pudo guardar el archivo" });
 
         int saveInt = await new OrdenCompraRequisitoService(_context).SaveAsync(p_ruc, p_orden_compra, p_embarque, p_linea, p_tipo_requisito, p_item, _filename, "S", userNameSession);
@@ -217,6 +219,56 @@ public class OrdenCompraRequisitoController : _BaseController
         string rucProvSession = User.Claims.ToList()[0].Value;
         string rsProvSession = User.Claims.ToList()[1].Value;
         string userNameSession = User.Claims.ToList()[2].Value;
+        string subcarpeta = valenv.subcarpeta;
+        string baseDirectory = AppConfig.Configuracion.CarpetaArchivosBCTS;
+        string rucProvSessionPath = baseDirectory.TrimEnd('\\') + "\\" + rucProvSession; // Ajusta según el sistema operativo
+
+        var _pathSource = Path.Combine(AppConfig.Configuracion.CarpetaArchivos, rucProvSession);
+        var _pathBCTSDestination = Path.Combine(rucProvSessionPath, subcarpeta);
+        string filePrefix = valenv.orden_compra + "__" + valenv.embarque;
+
+        try
+        {
+            // Asegura que la ruta de destino exista antes de copiar los archivos
+            Directory.CreateDirectory(_pathBCTSDestination);
+            // Obtener todos los archivos en el directorio origen
+            var files = Directory.GetFiles(_pathSource);
+
+            foreach (var file in files)
+            {
+                // Obtener el nombre del archivo sin la ruta
+                string fileName = Path.GetFileName(file);
+                
+                // Filtrar archivos que comienzan con el patrón específico
+                if (fileName.Contains(filePrefix))
+                {
+                    // Verificar si el archivo es XML
+                    if (Path.GetExtension(file).Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Cambiar el nombre del archivo XML como se requiera
+                        string newFileName = rucProvSession + "-" + subcarpeta + ".xml"; // Aquí puedes personalizar el nombre como lo necesites
+                        string destinationPath = Path.Combine(_pathBCTSDestination, newFileName);
+                        // Copiar el archivo XML renombrado
+                        System.IO.File.Copy(file, destinationPath, true);
+                    }
+                    else
+                    {
+                        // Copiar los demás archivos tal como están
+                        string destinationPath = Path.Combine(_pathBCTSDestination, fileName);
+                        System.IO.File.Copy(file, destinationPath, true);
+                    }
+                }
+            }
+
+            Console.WriteLine("Los archivos han sido procesados y copiados correctamente.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Ocurrió un error: " + e.Message);
+        }
+        
+        
+        
         try
         {
             bool existePendientes = new OrdenCompraRequisitoService(_context).GetStatusPendientes(valenv.ruc, valenv.orden_compra, valenv.embarque);
