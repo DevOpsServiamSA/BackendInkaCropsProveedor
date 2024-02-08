@@ -25,6 +25,8 @@ public class AppConfig
     {
         public static string Website { get; set; } = null!;
         public static string CarpetaArchivos { get; set; } = null!;
+        
+        public static string CarpetaArchivosBCTS { get; set; } = null!;
         public static string ServidorMail { get; set; } = null!;
         public static int PuertoMail { get; set; }
         public static bool EnableSSLMail { get; set; }
