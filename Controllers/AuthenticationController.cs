@@ -16,7 +16,7 @@ public class AuthenticationController : ControllerBase
 {
     private readonly IConfiguration _config;
     private readonly ProveedorContext _context;
-    private readonly RecaptchaService _recaptchaService; // Agrega esta línea
+    private readonly RecaptchaService _recaptchaService;
 
     public AuthenticationController(IConfiguration configuration, ProveedorContext context, RecaptchaService recaptchaService)
     {

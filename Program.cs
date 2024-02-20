@@ -62,7 +62,7 @@ builder.Services.AddDbContext<ProveedorContext>(opt => opt.UseSqlServer(builder.
 builder.Services.AddDbContext<TransporteContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("Transporte")));
 builder.Services.AddDbContext<ExactusExtContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("ExactusExt")));
 builder.Services.AddSingleton<RecaptchaService>(sp => new RecaptchaService(sp.GetRequiredService<IConfiguration>().GetValue<string>("Recaptcha:Secret")));
-
+builder.Services.AddScoped<ProveedorBCTSService>();
 
 builder.Services.AddAuthentication(x =>
 {
