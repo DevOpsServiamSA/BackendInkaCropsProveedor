@@ -5,12 +5,13 @@ namespace ProveedorApi.Services;
 
 public class RecaptchaService
 {
-    private const string RecaptchaVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
+    private readonly string _recaptchaVerifyUrl;
     private readonly string _secret;
 
-    public RecaptchaService(string secret)
+    public RecaptchaService(string secret, string url)
     {
         _secret = secret;
+        _recaptchaVerifyUrl = url;
     }
 
     public async Task<RecaptchaResponse> ValidateRecaptcha(string token)
@@ -22,7 +23,7 @@ public class RecaptchaService
             new KeyValuePair<string, string>("response", token)
         });
 
-        var response = await httpClient.PostAsync(RecaptchaVerifyUrl, postData);
+        var response = await httpClient.PostAsync(_recaptchaVerifyUrl, postData);
         var jsonString = await response.Content.ReadAsStringAsync();
         return JsonConvert.DeserializeObject<RecaptchaResponse>(jsonString);
     }

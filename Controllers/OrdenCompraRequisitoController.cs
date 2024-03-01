@@ -387,7 +387,7 @@ public class OrdenCompraRequisitoController : _BaseController
                 return Conflict(new { msg = "Error: " + error });
 
             // METODO DE ENVIO -- IMPLEMENTADO
-            string response = await _bctsService.EnviarComprobanteBCTS(tokenBcts, rucProvSession, nombreArchivo, fileBase64, valenv.embarque, adjuntos);
+            string response = await _bctsService.EnviarComprobanteBCTS(tokenBcts, rucProvSession, _nombreArchivo, _fileBase64, valenv.embarque, adjuntos);
 
             if (!string.IsNullOrEmpty(response))
                 return Conflict(new { msg = "Error: " + response });
@@ -628,9 +628,7 @@ public class OrdenCompraRequisitoController : _BaseController
         {
             await Task.Run(() =>
             {
-                // Resto del código...
-
-                // Código de ProcesarArchivos aquí...
+               // Código de ProcesarArchivos 
                 Directory.CreateDirectory(destinationPath);
 
                 var files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*");
@@ -645,7 +643,8 @@ public class OrdenCompraRequisitoController : _BaseController
                         {
                             string newFileName = rucProvSession + "-" + subcarpeta + ".xml";
                             string destinationFilePath = Path.Combine(destinationPath, newFileName);
-
+                            nombreArchivo = newFileName;   
+                            
                             byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
                             fileBase64 = Convert.ToBase64String(fileContentBytes);
                             
