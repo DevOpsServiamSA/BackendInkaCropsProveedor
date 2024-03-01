@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Net;
+using System.Text;
 using Newtonsoft.Json;
 using ProveedorApi.Models;
 
@@ -6,24 +7,30 @@ namespace ProveedorApi.Services;
 
 public class ProveedorBCTSService
 {
-    private const string URLGetTokenBCTS          = "http://192.168.10.120:80/WSProveedores/token/";
-    private const string URLValidaComprobanteBCTS = "http://192.168.10.120:80/WSProveedores/comprobante/validar";
-    private const string URLEnviarComprobanteBCTS = "http://192.168.10.120:80/WSProveedores/comprobante/grabar";
-    private const string username = "portalproveedores@bctsconsulting.com";
-    private const string password = "P*/^|p:{A@L54G:";
-    private const string grantType = "password";
+    private readonly string _urlGetTokenBCTS;
+    private readonly string _urlValidaComprobanteBCTS;
+    private readonly string _urlEnviarComprobanteBCTS;
+    private readonly string _username;
+    private readonly string _password;
+    private readonly string _grantType;
 
-    public ProveedorBCTSService()
+    public ProveedorBCTSService(WebServiceBCTSConfig webServiceBctsConfig)
     {
+        _urlGetTokenBCTS = webServiceBctsConfig.URLGetTokenBCTS;
+        _urlValidaComprobanteBCTS = webServiceBctsConfig.URLEnviarComprobanteBCTS;
+        _urlEnviarComprobanteBCTS = webServiceBctsConfig.URLEnviarComprobanteBCTS;
+        _username = webServiceBctsConfig.User.UserName;
+        _password = webServiceBctsConfig.User.Password;
+        _grantType = webServiceBctsConfig.User.GrantType;
     }
     
     public async Task<string> GetAccessTokenBCTS()
     {
         var data = new Dictionary<string, string>
         {
-            { "username", username },
-            { "password", password },
-            { "grant_type", grantType }
+            { "username", _username },
+            { "password", _password },
+            { "grant_type", _grantType }
         };
         
         using var httpClient = new HttpClient();
@@ -34,7 +41,7 @@ public class ProveedorBCTSService
             
         try
         {
-            response = await httpClient.PostAsync(URLGetTokenBCTS, postData);
+            response = await httpClient.PostAsync(_urlGetTokenBCTS, postData);
             // Resto del código...
         }
         catch (Exception ex)
@@ -97,7 +104,7 @@ public class ProveedorBCTSService
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
             // Enviar la solicitud POST
-            var response = await httpClient.PostAsync(URLValidaComprobanteBCTS, content);
+            var response = await httpClient.PostAsync(_urlValidaComprobanteBCTS, content);
 
             // Verificar si la solicitud fue exitosa
             response.EnsureSuccessStatusCode();
@@ -125,7 +132,6 @@ public class ProveedorBCTSService
         return null;
     }
 
-    
      public async Task<string> EnviarComprobanteBCTS(string token, 
                                                     string ruc, 
                                                     string nombreArchivo,
@@ -162,29 +168,47 @@ public class ProveedorBCTSService
             var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
 
             // Enviar la solicitud POST
-            var response = await httpClient.PostAsync(URLValidaComprobanteBCTS, content);
+            var response = await httpClient.PostAsync(_urlEnviarComprobanteBCTS, content);
 
-            // Verificar si la solicitud fue exitosa
-            response.EnsureSuccessStatusCode();
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                var responseJSON = JsonConvert.DeserializeObject<EnviarComprobanteBCTSResponse>(responseContent);
 
-            // Leer y manejar la respuesta como cadena JSON
-            var responseContent = await response.Content.ReadAsStringAsync();
-            var responseJSON = JsonConvert.DeserializeObject<ValidaComprobanteBCTSResponse>(responseContent);
-            
-            System.Diagnostics.Debug.WriteLine("Token: " + responseJSON?.Error);
-            // Retornar el access token
-            return responseJSON?.Error;
+                System.Diagnostics.Debug.WriteLine("Token: " + responseJSON?.error);
+                return responseJSON?.error;
+            }
+            else if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
+                var errorResponseContent = await response.Content.ReadAsStringAsync();
+
+                try
+                {
+                    // Intenta deserializar la respuesta de error como un objeto ErrorResponse
+                    var errorResponseJSON = JsonConvert.DeserializeObject<EnviarComprobanteBCTSResponse>(errorResponseContent);
+                    return errorResponseJSON?.error;
+                }
+                catch (JsonException)
+                {
+                    // Si hay un problema al deserializar, simplemente devuelve el contenido como texto
+                    return errorResponseContent;
+                }
+            }
+            else
+            {
+                // Otros códigos de estado no manejados
+                response.EnsureSuccessStatusCode();
+                return null; // O manejar según tus necesidades
+            }
         }
         catch (HttpRequestException ex)
         {
             // Manejar errores de la solicitud HTTP
-            System.Diagnostics.Debug.WriteLine($"Error en la solicitud HTTP: {ex.Message}");
             return ex.Message;
         }
         catch (Exception ex)
         {
             // Manejar otros errores
-            System.Diagnostics.Debug.WriteLine($"Error inesperado: {ex.Message}");
             return ex.Message;
         }
      }

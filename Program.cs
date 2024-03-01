@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ProveedorApi;
 using ProveedorApi.Data;
+using ProveedorApi.Models;
 using ProveedorApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -61,8 +62,16 @@ builder.Services.AddCors(options =>
 builder.Services.AddDbContext<ProveedorContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("Proveedor")));
 builder.Services.AddDbContext<TransporteContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("Transporte")));
 builder.Services.AddDbContext<ExactusExtContext>(opt => opt.UseSqlServer(builder.Configuration.GetConnectionString("ExactusExt")));
-builder.Services.AddSingleton<RecaptchaService>(sp => new RecaptchaService(sp.GetRequiredService<IConfiguration>().GetValue<string>("Recaptcha:Secret")));
-builder.Services.AddScoped<ProveedorBCTSService>();
+builder.Services.AddSingleton<RecaptchaService>(sp 
+    => new RecaptchaService(sp.GetRequiredService<IConfiguration>().GetValue<string>("AppConfig:Recaptcha:Secret"), 
+                                 sp.GetRequiredService<IConfiguration>().GetValue<string>("AppConfig:Recaptcha:Url")));
+builder.Services.AddSingleton<ProveedorBCTSService>(sp =>
+    {
+        var configuration = sp.GetRequiredService<IConfiguration>();
+        var webServiceBCTSConfig = configuration.GetSection("AppConfig:WebServiceBCTS").Get<WebServiceBCTSConfig>();
+        return new ProveedorBCTSService(webServiceBCTSConfig);
+    }
+);
 
 builder.Services.AddAuthentication(x =>
 {

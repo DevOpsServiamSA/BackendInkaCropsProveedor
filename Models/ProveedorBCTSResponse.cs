@@ -8,6 +8,21 @@ public class ProveedorBCTSResponse
     public List<string> ErrorCodes { get; set; }
 }
 
+public class WebServiceBCTSConfig
+{
+    public UserConfig User { get; set; }
+    public string URLGetTokenBCTS { get; set; }
+    public string URLValidaComprobanteBCTS { get; set; }
+    public string URLEnviarComprobanteBCTS { get; set; }
+}
+
+public class UserConfig
+{
+    public string UserName { get; set; }
+    public string Password { get; set; }
+    public string GrantType { get; set; }
+}
+
 public class TokenResponse
 {
     public string access_token { get; set; }
@@ -25,10 +40,7 @@ public class ValidaComprobanteBCTSResponse
 
 public class EnviarComprobanteBCTSResponse
 {
-    public bool Success { get; set; }
-    public string ChallengeTs { get; set; }
-    public string Hostname { get; set; }
-    public List<string> ErrorCodes { get; set; }
+    public string error { get; set; }
 }
 
 public class Adjunto
