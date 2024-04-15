@@ -653,7 +653,7 @@ public class OrdenCompraRequisitoController : _BaseController
                         }
                         else
                         {
-                            var archivoInfo = new Adjunto { NombreArchivo = fileName };
+                            var archivoInfo = new Adjunto { NombreArchivo = renombrar(fileName) };
                             string destinationFilePath = Path.Combine(destinationPath, fileName);
 
                             byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
@@ -696,4 +696,56 @@ public class OrdenCompraRequisitoController : _BaseController
 
     //     return status;
     // }
+    
+    private string renombrar(string name)
+    {
+        // 1 DOCUMENTO (PDF)
+        // 2 DOCUMENTO (XML)
+        // 3 GUÍA DE REMISIÓN (PDF)
+        // 4 OC (PDF)
+        // 5 NOTA DE CRÉDITO (PDF)
+        // 6 NOTA DE CRÉDITO (XML)
+        // 7 FACTURA DE REFERENCIA
+
+        // Los nombres que llegan con esta estructura: OC00051224__EM00069538__1__1 OrdenCompra__Embarque__TipoRequisito_TipoArchivo
+
+        string nombreAsignado = "";
+
+        // Dividir el nombre en partes usando el doble guion bajo como separador
+        string[] partes = name.Split("__");
+
+        if (partes.Length == 4)
+        {
+            // Obtener las partes relevantes del nombre
+            string ordenCompra = partes[0];
+            string embarque = partes[1];
+            string documento = "";
+            string tipoArchivo = partes[3];
+            
+            // Mapear los valores de tipoRequisito y tipoArchivo según tus indicaciones
+            switch (partes[2])
+            {
+                case "1":
+                    documento = "DOCUMENTOPDF";
+                    break;
+                case "2":
+                    documento = "DOCUMENTOXML";
+                    break;
+                case "3":
+                    documento = "GUIAPDF";
+                    break;
+                case "4":
+                    documento = "OCPDF";
+                    break;
+                // Agrega más casos según sea necesario para otros valores de tipoRequisito
+            }
+
+            // Crear el nuevo nombre con los valores actualizados
+            nombreAsignado = $"{ordenCompra}__{embarque}__{documento}__{tipoArchivo}";
+        }
+
+        return nombreAsignado;
+    }
+
+
 }
