@@ -40,7 +40,7 @@ public class OrdenCompraResponse
     public int? motivo_rechazo { get; set; }
     public string? motivo_rechazo_descripcion { get; set; }
     public string condicion_pago { get; set; } = null!;
-
+    public string modulo_origen { get; set; }
 }
 
 
