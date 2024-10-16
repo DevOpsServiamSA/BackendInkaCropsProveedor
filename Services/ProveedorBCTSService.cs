@@ -17,7 +17,7 @@ public class ProveedorBCTSService
     public ProveedorBCTSService(WebServiceBCTSConfig webServiceBctsConfig)
     {
         _urlGetTokenBCTS = webServiceBctsConfig.URLGetTokenBCTS;
-        _urlValidaComprobanteBCTS = webServiceBctsConfig.URLEnviarComprobanteBCTS;
+        _urlValidaComprobanteBCTS = webServiceBctsConfig.URLValidaComprobanteBCTS;
         _urlEnviarComprobanteBCTS = webServiceBctsConfig.URLEnviarComprobanteBCTS;
         _username = webServiceBctsConfig.User.UserName;
         _password = webServiceBctsConfig.User.Password;

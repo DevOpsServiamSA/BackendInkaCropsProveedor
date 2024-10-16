@@ -397,7 +397,7 @@ public class OrdenCompraRequisitoController : _BaseController
             {
                 bool existePendientes = new OrdenCompraRequisitoService(_context).GetStatusPendientes(valenv.ruc, valenv.orden_compra, valenv.embarque);
 
-                if (existePendientes) return Conflict(new { msg = "Aún tienes requisitos que completar" });
+                // if (existePendientes) return Conflict(new { msg = "Aún tienes requisitos que completar" });
 
                 int saveIntEstadoEmbarque = await new OrdenCompraEmbarqueEstadoService(_context).SaveEstadoAsync(valenv.ruc, valenv.orden_compra, valenv.embarque, "2", userNameSession);
                 int saveIntBitacora = await new OrdenCompraBitacoraService(_context).SaveAsync(valenv.orden_compra, valenv.embarque, "2", "Los requisitos fueron enviados", userNameSession);
@@ -623,7 +623,9 @@ public class OrdenCompraRequisitoController : _BaseController
     {
         string fileBase64 = "";
         string nombreArchivo = "";
-
+        string bucleFileBase64 = "";
+        string bucleNombreArchivo = "";
+        
         try
         {
             await Task.Run(() =>
@@ -632,38 +634,62 @@ public class OrdenCompraRequisitoController : _BaseController
                 Directory.CreateDirectory(destinationPath);
 
                 var files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*");
-
+                int xmlCounter = 0; // Contador para archivos XML
+                
                 foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
 
                     if (fileName.Contains(filePrefix))
                     {
+                        var archivoInfo = new Adjunto {  };
                         if (Path.GetExtension(file).Equals(".xml", StringComparison.OrdinalIgnoreCase))
                         {
-                            string newFileName = rucProvSession + "-" + subcarpeta + ".xml";
+                            // Incrementamos el contador para archivos XML
+                            xmlCounter++;
+
+                            // Crear un nuevo nombre único para el XML
+                            string newFileName = $"{rucProvSession}-{subcarpeta}-{xmlCounter}.xml";
                             string destinationFilePath = Path.Combine(destinationPath, newFileName);
-                            nombreArchivo = newFileName;   
-                            
+                            bucleNombreArchivo = newFileName;   
+
                             byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
-                            fileBase64 = Convert.ToBase64String(fileContentBytes);
+                            bucleFileBase64 = Convert.ToBase64String(fileContentBytes);
+
+                            // Agregar información del XML al objeto archivoInfo
+                            archivoInfo.NombreArchivo = bucleNombreArchivo;  // Nombre del archivo XML
+                            archivoInfo.Data = bucleFileBase64;  // Contenido codificado en Base64
                             
+                            if (xmlCounter == 1) { // Devolver la informacion de la factua Nombre y base64XML
+                                fileBase64 = bucleFileBase64;
+                                nombreArchivo = bucleNombreArchivo;  
+                            }
+                            else
+                            {
+                                // Agregar el archivo (ya sea XML o no) a la lista adjuntos
+                                adjuntos.Add(archivoInfo);
+                            }
+
                             // Sacar copia en la ruta destinationPath del XML
                             System.IO.File.Copy(file, destinationFilePath, true);
                         }
                         else
                         {
-                            var archivoInfo = new Adjunto { NombreArchivo = renombrar(fileName) };
+                            archivoInfo.NombreArchivo = renombrar(fileName);  // Nombre del archivo renombrado
+
                             string destinationFilePath = Path.Combine(destinationPath, fileName);
 
                             byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
                             archivoInfo.Data = Convert.ToBase64String(fileContentBytes);
-
-                            adjuntos.Add(archivoInfo);
                             
+                            // Agregar el archivo (ya sea XML o no) a la lista adjuntos
+                            adjuntos.Add(archivoInfo);
+
                             // Sacar copia en la ruta destinationPath de los PDF
                             System.IO.File.Copy(file, destinationFilePath, true);
                         }
+                        
+                        
                     }
                 }
 
@@ -706,6 +732,7 @@ public class OrdenCompraRequisitoController : _BaseController
         // 5 NOTA DE CRÉDITO (PDF)
         // 6 NOTA DE CRÉDITO (XML)
         // 7 FACTURA DE REFERENCIA
+        // 8 CDR
 
         // Los nombres que llegan con esta estructura: OC00051224__EM00069538__1__1 OrdenCompra__Embarque__TipoRequisito_TipoArchivo
 
@@ -726,16 +753,22 @@ public class OrdenCompraRequisitoController : _BaseController
             switch (partes[2])
             {
                 case "1":
-                    documento = "DOCUMENTOPDF";
+                    documento = "DOCUMENTO__PDF";
                     break;
                 case "2":
-                    documento = "DOCUMENTOXML";
+                    documento = "DOCUMENTO__XML";
                     break;
                 case "3":
-                    documento = "GUIAPDF";
+                    documento = "GUIA__PDF";
                     break;
                 case "4":
-                    documento = "OCPDF";
+                    documento = "OCP__DF";
+                    break;
+                case "8":
+                    documento = "CDR__DF";
+                    break;
+                default:
+                    documento = "SUSTENTO__DF";
                     break;
                 // Agrega más casos según sea necesario para otros valores de tipoRequisito
             }
