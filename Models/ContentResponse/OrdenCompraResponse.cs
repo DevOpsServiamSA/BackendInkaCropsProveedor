@@ -10,7 +10,7 @@ public class OrdenCompraResponse
     public string orden_compra { get; set; } = null!;
     public string? guia_remision { get; set; }
     public string? comprobante { get; set; }
-    public string embarque { get; set; } = null!;
+    public string? embarque { get; set; }
     public int tipo_comprobante { get; set; }
     public string tipo_comprobante_descripcion { get; set; } = null!;
 
