@@ -379,8 +379,9 @@ public class OrdenCompraRequisitoController : _BaseController
             var _pathSource = Path.Combine(AppConfig.Configuracion.CarpetaArchivos, rucProvSession);
             var _pathBCTSDestination = Path.Combine(rucProvSessionPath, subcarpeta);
             string filePrefix = valenv.orden_compra + "__" + valenv.embarque;
-
-            var (_fileBase64, _nombreArchivo) = await ProcesarArchivosAsync(_pathSource, _pathBCTSDestination, filePrefix, adjuntos, rucProvSession, subcarpeta);
+            
+            bool nota_credito = await new OrdenCompraService(_context).GetOrdenCompraEmbarque(valenv.orden_compra, valenv.embarque);
+            var (_fileBase64, _nombreArchivo) = await ProcesarArchivosAsync(_pathSource, _pathBCTSDestination, filePrefix, adjuntos, rucProvSession, subcarpeta, nota_credito);
             string error = await _bctsService.ValidaComprobanteBCTS(tokenBcts, rucProvSession, "", _nombreArchivo, _fileBase64, valenv.embarque);
 
             if (!string.IsNullOrEmpty(error))
@@ -619,12 +620,13 @@ public class OrdenCompraRequisitoController : _BaseController
     }
     
     private async Task<(string fileBase64, string nombreArchivo)> ProcesarArchivosAsync(string sourcePath, string destinationPath, 
-            string filePrefix, List<Adjunto> adjuntos, string rucProvSession, string subcarpeta)
+            string filePrefix, List<Adjunto> adjuntos, string rucProvSession, string subcarpeta, bool nota_credito = false)
     {
         string fileBase64 = "";
         string nombreArchivo = "";
         string bucleFileBase64 = "";
         string bucleNombreArchivo = "";
+        string[] tipoDocumento = new[] { (subcarpeta.Split('-'))[0] };
         
         try
         {
@@ -632,8 +634,16 @@ public class OrdenCompraRequisitoController : _BaseController
             {
                // Código de ProcesarArchivos 
                 Directory.CreateDirectory(destinationPath);
-
-                var files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*");
+                IEnumerable<string> files;
+                
+                if (nota_credito) {
+                    files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}__5__*.*")
+                        .Concat(Directory.EnumerateFiles(sourcePath, $"{filePrefix}__6__*.*"))
+                        .ToList();
+                } else {
+                    files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*");
+                }
+                
                 int xmlCounter = 0; // Contador para archivos XML
                 
                 foreach (var file in files)

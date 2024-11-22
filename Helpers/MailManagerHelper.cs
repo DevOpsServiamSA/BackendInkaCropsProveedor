@@ -2,13 +2,22 @@ using Microsoft.Extensions.Configuration;
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Mail;
 using System.Threading.Tasks;
+using Microsoft.Graph;
+using Microsoft.Identity.Client;
+using Attachment = System.Net.Mail.Attachment;
 
 namespace ProveedorApi.Helpers
 {
     public class MailManagerHelper
     {
+        public static string userEmail = AppConfig.Configuracion.UserMail;
+        public static string clientId = AppConfig.Configuracion.ClientId;
+        public static string clientSecret = AppConfig.Configuracion.ClientSecret;
+        public static string tenantId = AppConfig.Configuracion.TenantId;
+        
         private SmtpClient cliente;
         public MailManagerHelper()
         {
@@ -22,46 +31,82 @@ namespace ProveedorApi.Helpers
         }
         public async Task<bool> EnviarCorreoAsync(string destinatario, string asunto, string mensaje, List<Attachment>? attachList = null, bool esHtlm = false)
         {
-            bool status = false;
             try
             {
-                MailMessage email = new MailMessage();
-                email.From = new MailAddress(AppConfig.Configuracion.UserMail);
-                email.Subject = asunto;
-                email.Body = mensaje;
-                email.IsBodyHtml = esHtlm;
+                // Obtener token de acceso
+                string accessToken = await GetTokenOAuthAsync();
 
-                string[] destinatarios = destinatario.Replace(";", ",").Split(',');
-                foreach (string toEmail in destinatarios)
-                {
-                    if (!UtilityHelper.IsValidEmail(toEmail)) continue;
-                    email.To.Add(new MailAddress(toEmail));
-                }
-
-                if (email.To.Count == 0) return false;
-
-                if (attachList != null)
-                {
-                    if (attachList.Count > 0)
+                // Configurar GraphServiceClient
+                var graphClient = new GraphServiceClient(
+                    new DelegateAuthenticationProvider(requestMessage =>
                     {
-                        attachList.ForEach(att =>
+                        requestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                        return Task.CompletedTask;
+                    })
+                );
+
+                // Crear el mensaje de correo
+                var message = new Message
+                {
+                    Subject = asunto,
+                    Body = new ItemBody
+                    {
+                        ContentType = BodyType.Html,
+                        Content = mensaje
+                    },
+                    ToRecipients = new List<Recipient>
+                    {
+                        new Recipient
                         {
-                            email.Attachments.Add(att);
-                        });
-
+                            EmailAddress = new EmailAddress
+                            {
+                                Address = destinatario
+                            }
+                        }
                     }
-                }
+                };
 
-                await cliente.SendMailAsync(email);
-                cliente.Dispose();
-                email.Dispose();
-                status = true;
+                // if (attachList != null)
+                // {
+                //     if (attachList.Count > 0)
+                //     {
+                //         attachList.ForEach(att =>
+                //         {
+                //             message.Attachments.Add(att);
+                //         });
+                //
+                //     }
+                // }
+
+                // Enviar el correo utilizando Microsoft Graph API
+                await graphClient.Users[userEmail]
+                    .SendMail(message, null) // null indica que no se guardará una copia en la carpeta 'Sent'
+                    .Request()
+                    .PostAsync();
+
+                return true;
             }
-            catch (System.Exception)
+            catch (System.Exception ex)
             {
-                status = false;
+                Console.WriteLine($"Error enviando correo: {ex.Message}");
+                return false;
             }
-            return status;
+        }
+        
+        private async Task<string> GetTokenOAuthAsync()
+        {
+            var confidentialClient = ConfidentialClientApplicationBuilder
+                .Create(clientId)
+                .WithClientSecret(clientSecret)
+                .WithAuthority(new Uri($"https://login.microsoftonline.com/{tenantId}"))
+                .Build();
+
+            var scopes = new[] { "https://graph.microsoft.com/.default" };
+
+            var authResult = await confidentialClient.AcquireTokenForClient(scopes).ExecuteAsync();
+            return authResult.AccessToken;
         }
     }
+    
+    
 }

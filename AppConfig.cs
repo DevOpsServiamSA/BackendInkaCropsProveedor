@@ -34,5 +34,8 @@ public class AppConfig
         public static string PasswordMail { get; set; } = null!;
         public static string DestinoRobotMail { get; set; } = null!;
         public static string DestinoCompraMail { get; set; } = null!;
+        public static string ClientId { get; set; } = null!;
+        public static string TenantId { get; set; } = null!;
+        public static string ClientSecret { get; set; } = null!;
     }
 }

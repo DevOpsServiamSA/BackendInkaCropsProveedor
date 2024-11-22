@@ -26,6 +26,9 @@ AppConfig.Configuracion.PasswordMail = builder.Configuration["appConfig:Configur
 AppConfig.Configuracion.PuertoMail = Convert.ToInt32(builder.Configuration["appConfig:Configuracion:PuertoMail"]);
 AppConfig.Configuracion.ServidorMail = builder.Configuration["appConfig:Configuracion:ServidorMail"];
 AppConfig.Configuracion.UserMail = builder.Configuration["appConfig:Configuracion:UserMail"];
+AppConfig.Configuracion.ClientId = builder.Configuration["appConfig:Configuracion:ClientId"];
+AppConfig.Configuracion.TenantId = builder.Configuration["appConfig:Configuracion:TenantId"];
+AppConfig.Configuracion.ClientSecret = builder.Configuration["appConfig:Configuracion:ClientSecret"];
 
 /*Mensajes*/
 AppConfig.Mensajes.AsuntoSolicitudAcceso = builder.Configuration["appConfig:Mensajes:AsuntoSolicitudAcceso"];

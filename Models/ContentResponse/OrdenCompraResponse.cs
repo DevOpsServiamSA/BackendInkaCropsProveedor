@@ -41,7 +41,9 @@ public class OrdenCompraResponse
     public string? motivo_rechazo_descripcion { get; set; }
     public string condicion_pago { get; set; } = null!;
     public string modulo_origen { get; set; }
-}
+    [Column(TypeName = "datetime")]
+    public DateTime? fecha_carga_documentos { get; set; }
+}   
 
 
 

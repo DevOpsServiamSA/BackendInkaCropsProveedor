@@ -66,21 +66,21 @@ public class SolicitudAccesoController : _BaseController
             if (body.estado == "N")
             {
                 msgCorreoHtml = $@"<p>Hola {solicitud.nombre}</p>";
-                msgCorreoHtml += $@"<p>Lamentamos informale que su solicitud de acceso a nuestra plataforma Órdenes de Compra FILASUR ha sido rechazada.</p>";
+                msgCorreoHtml += $@"<p>Lamentamos informale que su solicitud de acceso a nuestra plataforma Órdenes de Compra INKACROPS ha sido rechazada.</p>";
                 msgCorreoHtml += $@"<p>Si desea más información sobre el motivo de este rechazo, por favor, escríbanos a: {AppConfig.Configuracion.DestinoCompraMail}</p>";
                 msgCorreoHtml += $@"<p>Atentamente</p>";
-                msgCorreoHtml += $@"<p><b>FILASUR</b></p>";
+                msgCorreoHtml += $@"<p><b>INKACROPS</b></p>";
             }
             else
             {
-                msgCorreoHtml = $@"<p>Enhorabuena, {solicitud.nombre}!. Es  un gusto informale que su solicitud de acceso a nuestra plataforma Órdenes de Compra FILASUR ha sido aceptada.</p>";
+                msgCorreoHtml = $@"<p>Enhorabuena, {solicitud.nombre}!. Es  un gusto informale que su solicitud de acceso a nuestra plataforma Órdenes de Compra INKACROPS ha sido aceptada.</p>";
                 msgCorreoHtml += $@"<p>Ingrese a: <a href='{AppConfig.Configuracion.Website}login'>{AppConfig.Configuracion.Website}login</a></p>";
                 msgCorreoHtml += $@"<p>Sus credenciales son:</p>";
                 msgCorreoHtml += $@"<ul><li>RUC: {solicitud.ruc}</li><li>Usuario: {solicitud.usuario}</li><li>Contraseña: {solicitud.password}</li></ul>";
                 msgCorreoHtml += $@"<p>La clave enviada es autogenerada por nuestro sistema. Por cuestiones de su seguridad, le recomendamos cambiarla al ingresar por primera vez a nuestra plataforma.";
                 msgCorreoHtml += $@"<p>Si tiene problemas para acceder al sistema, por favor escríbanos a: {AppConfig.Configuracion.DestinoCompraMail}</p>";
                 msgCorreoHtml += $@"<p>Atentamente</p>";
-                msgCorreoHtml += $@"<p><b>FILASUR</b></p>";
+                msgCorreoHtml += $@"<p><b>INKACROPS</b></p>";
             }
 
 

@@ -123,8 +123,6 @@ public class AuthenticationController : ControllerBase
                 return lresult;
             }
 
-
-
             lresult[1] = new TokenAuth(_config).Token(
                 new TokenModel
                 {
