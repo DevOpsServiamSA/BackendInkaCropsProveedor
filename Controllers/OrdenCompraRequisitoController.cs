@@ -218,145 +218,6 @@ public class OrdenCompraRequisitoController : _BaseController
 
         return NoContent();
     }
-
-    // [HttpPost("validarenviar")]
-    // public async Task<ActionResult<object>> ValidarEnviar(ValidarEnviarBody valenv)
-    // {
-    //     // -------------------------------------------------------------------------------------------------------------
-    //     // Obtener token BTCS
-    //     // -------------------------------------------------------------------------------------------------------------
-    //     string tokenBcts = await _bctsService.GetAccessTokenBCTS();
-    //     List<Adjunto> listAdjuntos = new List<Adjunto>();
-    //     // -------------------------------------------------------------------------------------------------------------
-    //     
-    //     string fileBase64 = ""; 
-    //     string nombreArchivo = ""; 
-    //     string rucProvSession = User.Claims.ToList()[0].Value;
-    //     string rsProvSession = User.Claims.ToList()[1].Value;
-    //     string userNameSession = User.Claims.ToList()[2].Value;
-    //     string subcarpeta = valenv.subcarpeta;
-    //     string baseDirectory = AppConfig.Configuracion.CarpetaArchivosBCTS;
-    //     string rucProvSessionPath = baseDirectory.TrimEnd('\\') + "\\" + rucProvSession; // Ajusta según el sistema operativo
-    //
-    //     var _pathSource = Path.Combine(AppConfig.Configuracion.CarpetaArchivos, rucProvSession);
-    //     var _pathBCTSDestination = Path.Combine(rucProvSessionPath, subcarpeta);
-    //     string filePrefix = valenv.orden_compra + "__" + valenv.embarque;
-    //
-    //     try
-    //     {
-    //         // Asegura que la ruta de destino exista antes de copiar los archivos
-    //         Directory.CreateDirectory(_pathBCTSDestination);
-    //
-    //         // Obtener todos los archivos en el directorio origen que coinciden con el patrón
-    //         var files = Directory.EnumerateFiles(_pathSource, $"{filePrefix}*.*");
-    //
-    //         foreach (var file in files)
-    //         {
-    //             // Obtener el nombre del archivo sin la ruta
-    //             string fileName = Path.GetFileName(file);
-    //             
-    //             // Filtrar archivos que comienzan con el patrón específico
-    //             if (fileName.Contains(filePrefix))
-    //             {
-    //                 // Verificar si el archivo es XML
-    //                 if (Path.GetExtension(file).Equals(".xml", StringComparison.OrdinalIgnoreCase))
-    //                 {
-    //                     // Cambiar el nombre del archivo XML como se requiera
-    //                     string newFileName = rucProvSession + "-" + subcarpeta + ".xml"; // Aquí puedes personalizar el nombre como lo necesites
-    //                     string destinationPath = Path.Combine(_pathBCTSDestination, newFileName);
-    //                     
-    //                     // Leer el contenido del archivo y convertirlo a Base64
-    //                     byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
-    //                     fileBase64 = Convert.ToBase64String(fileContentBytes);
-    //                     
-    //                     // Copiar el archivo XML renombrado
-    //                     System.IO.File.Copy(file, destinationPath, true);
-    //                 }
-    //                 else
-    //                 {
-    //                     var archivoInfo = new Adjunto { NombreArchivo = fileName };
-    //                     // Copiar los demás archivos tal como están
-    //                     string destinationPath = Path.Combine(_pathBCTSDestination, fileName);
-    //                     
-    //                     // Leer el contenido del archivo y convertirlo a Base64
-    //                     byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
-    //                     archivoInfo.Data = Convert.ToBase64String(fileContentBytes);
-    //                     
-    //                     // Agregar el objeto ArchivoInfo a la lista
-    //                     listAdjuntos.Add(archivoInfo);
-    //                     
-    //                     System.IO.File.Copy(file, destinationPath, true);
-    //                 }
-    //             }
-    //         }
-    //
-    //         Console.WriteLine("Los archivos han sido procesados y copiados correctamente.");
-    //     }
-    //     catch (Exception e)
-    //     {
-    //         Console.WriteLine("Ocurrió un error: " + e.Message);
-    //     }
-    //     
-    //     // -------------------------------------------------------------------------------------------------------------
-    //     // Agregar la validacion del XML contra el ENDPOINT BCTS
-    //     // -------------------------------------------------------------------------------------------------------------
-    //     // Llamada a la función ValidaComprobanteBCTS con dynamic
-    //     string error = await _bctsService.ValidaComprobanteBCTS(
-    //         tokenBcts,
-    //         rucProvSession,
-    //         "",
-    //         nombreArchivo,
-    //         fileBase64,
-    //         valenv.embarque
-    //     );
-    //
-    //     if (!error.Equals(""))
-    //     {
-    //         return Conflict(new { msg = "Error: " + error });
-    //     }
-    //     else
-    //     {
-    //         
-    //         // METODO DE ENVIO -- IMPLEMENTADO
-    //         string response = await _bctsService.EnviarComprobanteBCTS(tokenBcts,
-    //             rucProvSession,
-    //             nombreArchivo,
-    //             fileBase64,
-    //             valenv.embarque,
-    //             listAdjuntos);
-    //
-    //         if (!response.Equals(""))
-    //         {
-    //             return Conflict(new { msg="Error: " + error });
-    //         }
-    //
-    //     }
-    //
-    //     // -------------------------------------------------------------------------------------------------------------
-    //     
-    //     try
-    //     {
-    //         bool existePendientes = new OrdenCompraRequisitoService(_context).GetStatusPendientes(valenv.ruc, valenv.orden_compra, valenv.embarque);
-    //
-    //         if (existePendientes) return Conflict(new { msg = "Aún tienes requisitos que completar" });
-    //
-    //         int saveIntEstadoEmbarque = await new OrdenCompraEmbarqueEstadoService(_context).SaveEstadoAsync(valenv.ruc, valenv.orden_compra, valenv.embarque, "2", userNameSession);
-    //         int saveIntBitacora = await new OrdenCompraBitacoraService(_context).SaveAsync(valenv.orden_compra, valenv.embarque, "2", "Los requisitos fueron enviados", userNameSession);
-    //
-    //         List<OCRequisitoForMailResponse> ocrequisitos = await new OrdenCompraRequisitoService(_context).GetForMailAsync(valenv.ruc, valenv.orden_compra, valenv.embarque);
-    //         List<OCSustentoForMail> ocsustentos = await new OrdenCompraSustentoService(_context).GetForMailAsync(valenv.orden_compra, valenv.embarque);
-    //
-    //         bool status = await EnviarCorreoRequisitosAsync(ocrequisitos, ocsustentos, rucProvSession, $"Embarque -  {valenv.embarque} - {rsProvSession}");
-    //
-    //         if (!status) return Conflict(new { msg = "Error: No se envío el correo electrónico con los requisitos. Por favor, intente nuevamente" });
-    //     }
-    //     catch (System.Exception)
-    //     {
-    //         return Conflict(new { msg = "Error: No se envío el correo electrónico con los requisitos. Por favor, intente nuevamente" });
-    //     }
-    //
-    //     return NoContent();
-    // }
     
     [HttpPost("validarenviar")]
     public async Task<ActionResult<object>> ValidarEnviar(ValidarEnviarBody valenv)
@@ -366,8 +227,9 @@ public class OrdenCompraRequisitoController : _BaseController
             string rucProvSession = User.Claims.ToList()[0].Value;
             string rsProvSession = User.Claims.ToList()[1].Value;
             string userNameSession = User.Claims.ToList()[2].Value;
-
-            string tokenBcts = await _bctsService.GetAccessTokenBCTS();
+            
+            // METODO GENERAR TOKEN -- BCTS
+            // string tokenBcts = await _bctsService.GetAccessTokenBCTS();
             var adjuntos = new List<Adjunto>();
 
             string fileBase64 = ""; 
@@ -382,16 +244,18 @@ public class OrdenCompraRequisitoController : _BaseController
             
             bool nota_credito = await new OrdenCompraService(_context).GetOrdenCompraEmbarque(valenv.orden_compra, valenv.embarque);
             var (_fileBase64, _nombreArchivo) = await ProcesarArchivosAsync(_pathSource, _pathBCTSDestination, filePrefix, adjuntos, rucProvSession, subcarpeta, nota_credito);
-            string error = await _bctsService.ValidaComprobanteBCTS(tokenBcts, rucProvSession, "", _nombreArchivo, _fileBase64, valenv.embarque);
 
-            if (!string.IsNullOrEmpty(error))
-                return Conflict(new { msg = "Error: " + error });
+            // METODO DE VALIDAR -- BCTS
+            // string error = await _bctsService.ValidaComprobanteBCTS(tokenBcts, rucProvSession, "", _nombreArchivo, _fileBase64, valenv.embarque);
+            //
+            // if (!string.IsNullOrEmpty(error))
+            //     return Conflict(new { msg = "Error: " + error });
 
-            // METODO DE ENVIO -- IMPLEMENTADO
-            string response = await _bctsService.EnviarComprobanteBCTS(tokenBcts, rucProvSession, _nombreArchivo, _fileBase64, valenv.embarque, adjuntos);
-
-            if (!string.IsNullOrEmpty(response))
-                return Conflict(new { msg = "Error: " + response });
+            // METODO DE ENVIO -- BCTS
+            // string response = await _bctsService.EnviarComprobanteBCTS(tokenBcts, rucProvSession, _nombreArchivo, _fileBase64, valenv.embarque, adjuntos);
+            //
+            // if (!string.IsNullOrEmpty(response))
+            //     return Conflict(new { msg = "Error: " + response });
 
             // Envio de correos, comletano el flujo
             try
@@ -517,11 +381,10 @@ public class OrdenCompraRequisitoController : _BaseController
             int statusIntUpdate = await new OrdenCompraRequisitoService(_context).UpdateRechazoAsync(notif, userNameSession);
 
             if (statusIntUpdate == 0) return Conflict(new { msg = "Error: No se puede actualizar la notificación de rechazo." });
-
-
+            
             MailManagerHelper mail = new MailManagerHelper();
             String emails = string.Join(",", toEmails);
-            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development") emails = "nfrankches@gmail.com";
+            if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development") emails = "jleon@serviam.com.pe";
             bool status = await mail.EnviarCorreoAsync(emails, asunto, msgCorreoHml, esHtlm: true);
             if (!status) return Conflict(new { msg = "Error: No se envío el correo electrónico de notificación de rechazo" });
         }
@@ -556,6 +419,50 @@ public class OrdenCompraRequisitoController : _BaseController
             return Conflict(new { msg = "Error: No se envío el correo electrónico con los requisitos. Por favor, intente nuevamente" });
         }
         return NoContent();
+    }
+    
+    [HttpPost("sendExactus")]
+    public async Task<ActionResult<object>> sendExactus(ValidarEnviarBody valenv)
+    {
+        try
+        {
+            string rucProvSession = valenv.ruc;
+            int roleSession = Int32.Parse(User.Claims.ToList()[4].Value);
+
+            if (roleSession == 2) return Conflict(new { msg = "Error: No tiene permiso para realizar esta acción" });
+            
+            // METODO GENERAR TOKEN -- BCTS
+            string tokenBcts = await _bctsService.GetAccessTokenBCTS();
+            var adjuntos = new List<Adjunto>();
+
+            string fileBase64 = ""; 
+            string nombreArchivo = ""; 
+            string subcarpeta = valenv.subcarpeta;
+            
+            var _pathSource = Path.Combine(AppConfig.Configuracion.CarpetaArchivos, rucProvSession);
+            string filePrefix = valenv.orden_compra + "__" + valenv.embarque;
+            
+            bool nota_credito = await new OrdenCompraService(_context).GetOrdenCompraEmbarque(valenv.orden_compra, valenv.embarque);
+            var (_fileBase64, _nombreArchivo, _adjuntos) = await buildInformationExactusAsync(_pathSource, filePrefix, adjuntos, rucProvSession, subcarpeta, nota_credito);
+
+            // METODO DE VALIDAR -- BCTS
+            string error = await _bctsService.ValidaComprobanteBCTS(tokenBcts, rucProvSession, "", _nombreArchivo, _fileBase64, valenv.embarque);
+            
+            if (!string.IsNullOrEmpty(error))
+                return Conflict(new { msg = "Error: " + error });
+
+            // METODO DE ENVIO -- BCTS
+            string response = await _bctsService.EnviarComprobanteBCTS(tokenBcts, rucProvSession, _nombreArchivo, _fileBase64, valenv.embarque, adjuntos);
+            
+            if (!string.IsNullOrEmpty(response))
+                return Conflict(new { msg = "Error: " + response });
+            
+            return NoContent();
+        }
+        catch (Exception ex)
+        {
+            return Conflict(new { msg = "Error: " + ex.Message });
+        }
     }
 
     private async Task<bool> EnviarCorreoRequisitosAsync(List<OCRequisitoForMailResponse> pathAdjuntosList, List<OCSustentoForMail> pathSustentosAtt, string rucProv, string asunto)
@@ -715,7 +622,88 @@ public class OrdenCompraRequisitoController : _BaseController
         // Devolver los valores como una tupla
         return (fileBase64, nombreArchivo);
     }
+    
+    private async Task<(string fileBase64, string nombreArchivo, List<Adjunto>)> buildInformationExactusAsync(string sourcePath,
+            string filePrefix, List<Adjunto> adjuntos, string rucProvSession, string subcarpeta, bool nota_credito = false)
+    {
+        string fileBase64 = "";
+        string nombreArchivo = "";
+        string bucleFileBase64 = "";
+        string bucleNombreArchivo = "";
+        
+        try
+        {
+            await Task.Run(() =>
+            {
+               // Código de ProcesarArchivos 
+                IEnumerable<string> files;
+                
+                if (nota_credito) {
+                    files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}__5__*.*")
+                        .Concat(Directory.EnumerateFiles(sourcePath, $"{filePrefix}__6__*.*"))
+                        .ToList();
+                } else {
+                    files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*");
+                }
+                
+                int xmlCounter = 0; // Contador para archivos XML
+                
+                foreach (var file in files)
+                {
+                    string fileName = Path.GetFileName(file);
 
+                    if (fileName.Contains(filePrefix))
+                    {
+                        var archivoInfo = new Adjunto {  };
+                        if (Path.GetExtension(file).Equals(".xml", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Incrementamos el contador para archivos XML
+                            xmlCounter++;
+
+                            // Crear un nuevo nombre único para el XML
+                            string newFileName = $"{rucProvSession}-{subcarpeta}-{xmlCounter}.xml";
+                            // string destinationFilePath = Path.Combine(destinationPath, newFileName);
+                            bucleNombreArchivo = newFileName;
+
+                            byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
+                            bucleFileBase64 = Convert.ToBase64String(fileContentBytes);
+
+                            // Agregar información del XML al objeto archivoInfo
+                            archivoInfo.NombreArchivo = bucleNombreArchivo;  // Nombre del archivo XML
+                            archivoInfo.Data = bucleFileBase64;  // Contenido codificado en Base64
+                            
+                            if (xmlCounter == 1) { // Devolver la informacion de la factua Nombre y base64XML
+                                fileBase64 = bucleFileBase64;
+                                nombreArchivo = bucleNombreArchivo;  
+                            }
+                            else
+                            {
+                                // Agregar el archivo (ya sea XML o no) a la lista adjuntos
+                                adjuntos.Add(archivoInfo);
+                            }
+                        }
+                        else
+                        {
+                            archivoInfo.NombreArchivo = renombrar(fileName);  // Nombre del archivo renombrado
+                            byte[] fileContentBytes = System.IO.File.ReadAllBytes(file);
+                            archivoInfo.Data = Convert.ToBase64String(fileContentBytes);
+                            adjuntos.Add(archivoInfo);
+                        }
+                    }
+                }
+
+                Console.WriteLine("Los archivos han sido procesados y copiados correctamente.");
+            });
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Ocurrió un error: " + e.Message);
+            throw; // Lanzar la excepción para manejarla en el código que llama a este método
+        }
+
+        // Devolver los valores como una tupla
+        return (fileBase64, nombreArchivo, adjuntos);
+    }
     
     // private async Task<bool> EnviarCorreo2Async(string asunto, string htmlBody)
     // {

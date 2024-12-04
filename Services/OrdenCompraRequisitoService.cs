@@ -112,6 +112,7 @@ public class OrdenCompraRequisitoService : _BaseService
     {
         try
         {
+            // Verificamos si existe la orden de compra embarcada
             var existe = new OrdenCompraService(_context).GetAnyItem(p_notifBody.ruc, p_notifBody.orden_compra, p_notifBody.embarque);
 
             if (!existe) return 0;
