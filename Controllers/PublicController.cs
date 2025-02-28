@@ -31,4 +31,34 @@ public class PublicController : ControllerBase
             return NotFound();
         }
     }
+    
+    [HttpGet("pdf/{p_name}")]
+    public object getPdf(string p_name)
+    {
+        try
+        {
+            // var tutorialVideo = _context.TutorialVideo.Where(x => x.publico && x.nombre == p_name).FirstOrDefault();
+            // if (tutorialVideo == null) return NotFound();
+
+            string _path = Path.Combine(AppConfig.Configuracion.CarpetaArchivos, "pdfs", p_name);
+            if (!System.IO.File.Exists(_path)) return NotFound();
+
+            // Leer el archivo como byte array
+            byte[] filebyte = System.IO.File.ReadAllBytes(_path);
+
+            // Convertir a Base64
+            string base64 = Convert.ToBase64String(filebyte);
+
+            // Crear un data URL con el tipo de contenido y el contenido en Base64
+            string contentType = "application/pdf";
+            string dataUrl = $"data:{contentType};base64,{base64}";
+
+            // Devolver el data URL
+            return Ok(dataUrl);
+        }
+        catch (System.Exception)
+        {
+            return NotFound();
+        }
+    }
 }
