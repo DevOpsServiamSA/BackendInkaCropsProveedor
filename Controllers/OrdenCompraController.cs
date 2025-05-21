@@ -3,6 +3,7 @@ using ProveedorApi.Models.ContentBody;
 using ProveedorApi.Data;
 using ProveedorApi.Helpers;
 using ProveedorApi.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ProveedorApi.Controllers;
 

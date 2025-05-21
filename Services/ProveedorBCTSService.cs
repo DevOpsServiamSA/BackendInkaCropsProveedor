@@ -115,7 +115,7 @@ public class ProveedorBCTSService
             
             System.Diagnostics.Debug.WriteLine("Token: " + responseJSON?.Error);
             // Retornar el access token
-            return responseJSON?.Error;
+            return responseJSON!.Error;
         }
         catch (HttpRequestException ex)
         {

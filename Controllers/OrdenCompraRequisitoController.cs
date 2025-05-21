@@ -175,7 +175,11 @@ public class OrdenCompraRequisitoController : _BaseController
             string? contentType;
             if (!provider.TryGetContentType(_file, out contentType))
             {
-                contentType = "application/octet-stream";
+                //contentType = "application/octet-stream";
+                if (Path.GetExtension(_file).ToLower() == ".xml")
+        contentType = "text/xml";
+    else
+        contentType = "application/octet-stream";
             }
 
             byte[] filebyte = await System.IO.File.ReadAllBytesAsync(_file);
@@ -635,7 +639,7 @@ public class OrdenCompraRequisitoController : _BaseController
         {
             await Task.Run(() =>
             {
-               // Código de ProcesarArchivos 
+                // Código de ProcesarArchivos 
                 IEnumerable<string> files;
                 
                 if (nota_credito) {
@@ -643,7 +647,11 @@ public class OrdenCompraRequisitoController : _BaseController
                         .Concat(Directory.EnumerateFiles(sourcePath, $"{filePrefix}__6__*.*"))
                         .ToList();
                 } else {
-                    files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*");
+                    Console.WriteLine($"Ruta accedida: '{sourcePath}'");
+                    Console.WriteLine($"Existe directorio? {Directory.Exists(sourcePath)}");
+
+                    //files = Directory.EnumerateFiles(@"\\192.168.10.116\\INKATESTPROVEEDOR", $"{filePrefix}"); // localmente
+                    files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*"); //produccion
                 }
                 
                 int xmlCounter = 0; // Contador para archivos XML
