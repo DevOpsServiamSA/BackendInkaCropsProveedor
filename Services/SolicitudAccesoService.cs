@@ -76,9 +76,9 @@ public class SolicitudAccesoService : _BaseService
             return await _context.SaveChangesAsync();
 
         }
-        catch (System.Exception)
+        catch (Exception)
         {
-            return 0;
+           return 0;
         }
     }
     public async Task<SolicitudAcceso?> GetItemAsync(string ruc, string usuario)

@@ -389,7 +389,7 @@ public class OrdenCompraRequisitoController : _BaseController
             MailManagerHelper mail = new MailManagerHelper();
             String emails = string.Join(",", toEmails);
             if (Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development") emails = "jleon@serviam.com.pe";
-            bool status = await mail.EnviarCorreoAsync(emails, asunto, msgCorreoHml, esHtlm: true);
+            bool status = await mail.EnviarCorreoAsync(emails, asunto, msgCorreoHml, esHtml: true);
             if (!status) return Conflict(new { msg = "Error: No se envío el correo electrónico de notificación de rechazo" });
         }
         catch (System.Exception)

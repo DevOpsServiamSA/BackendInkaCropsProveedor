@@ -37,7 +37,7 @@ public class SolicitudAccesoController : _BaseController
         int roleSession = Int32.Parse(User.Claims.ToList()[4].Value);
         string userNameSession = User.Claims.ToList()[2].Value;
 
-        if (roleSession != 1) return Conflict(new { msg = "No tiene permiso para realizar esta acción" });
+        if (roleSession != 1 && roleSession !=3) return Conflict(new { msg = "No tiene permiso para realizar esta acción" });
         if (!(new[] { "S", "SS", "N" }.Contains(body.estado))) return Conflict(new { msg = "Estados no permitidos!" });
         try
         {

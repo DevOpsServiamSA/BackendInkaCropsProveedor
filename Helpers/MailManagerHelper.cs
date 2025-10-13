@@ -29,7 +29,12 @@ namespace ProveedorApi.Helpers
                 Credentials = new NetworkCredential(AppConfig.Configuracion.UserMail, AppConfig.Configuracion.PasswordMail)
             };
         }
-        public async Task<bool> EnviarCorreoAsync(string destinatario, string asunto, string mensaje, List<Attachment>? attachList = null, bool esHtlm = false)
+        public async Task<bool> EnviarCorreoAsync(
+                                                    string destinatarios,  // Ahora acepta una cadena con correos separados por comas
+                                                    string asunto,
+                                                    string mensaje,
+                                                    List<Attachment>? attachList = null,
+                                                    bool esHtml = false)
         {
             try
             {
@@ -45,54 +50,49 @@ namespace ProveedorApi.Helpers
                     })
                 );
 
+                // ---> **NUEVO: Procesar múltiples correos** <---
+                var listaCorreos = destinatarios
+                    .Split(',')
+                    .Select(c => c.Trim())  // Elimina espacios en blanco
+                    .Where(c => !string.IsNullOrEmpty(c))  // Filtra correos vacíos
+                    .ToList();
+
                 // Crear el mensaje de correo
                 var message = new Message
                 {
                     Subject = asunto,
                     Body = new ItemBody
                     {
-                        ContentType = BodyType.Html,
+                        ContentType = esHtml ? BodyType.Html : BodyType.Text,
                         Content = mensaje
                     },
-                    ToRecipients = new List<Recipient>
+                    ToRecipients = listaCorreos.Select(c => new Recipient
                     {
-                        new Recipient
-                        {
-                            EmailAddress = new EmailAddress
-                            {
-                                Address = destinatario
-                            }
-                        }
-                    }
+                        EmailAddress = new EmailAddress { Address = c }
+                    }).ToList()
                 };
 
-                // if (attachList != null)
+                // (Opcional) Manejar adjuntos si es necesario
+                // if (attachList?.Count > 0)
                 // {
-                //     if (attachList.Count > 0)
-                //     {
-                //         attachList.ForEach(att =>
-                //         {
-                //             message.Attachments.Add(att);
-                //         });
-                //
-                //     }
+                //     message.Attachments = attachList;
                 // }
 
                 // Enviar el correo utilizando Microsoft Graph API
                 await graphClient.Users[userEmail]
-                    .SendMail(message, null) // null indica que no se guardará una copia en la carpeta 'Sent'
+                    .SendMail(message, null)
                     .Request()
                     .PostAsync();
 
                 return true;
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine($"Error enviando correo: {ex.Message}");
                 return false;
             }
         }
-        
+
         private async Task<string> GetTokenOAuthAsync()
         {
             var confidentialClient = ConfidentialClientApplicationBuilder
