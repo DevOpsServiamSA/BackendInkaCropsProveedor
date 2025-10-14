@@ -12,11 +12,13 @@ public class OrdenCompraService : _BaseService
                                             int p_estado,int p_filtrosadd,
                                             DateTime p_fid, DateTime p_ffd,
                                             string? p_prov_rs = null, 
-                                            string? p_prov_ruc = null)
+                                            string? p_prov_ruc = null,
+                                            string? tipoEmbarque = null
+                                            )
     {
         try
         {
-            var result = await _context.OrdenCompraResponse.FromSqlInterpolated($"exec oc_get_orden_compra {p_fi.Date}, {p_ff.Date}, {p_fid.Date}, {p_ffd.Date}, {p_estado}, {p_filtrosadd}, {p_prov_rs}, {p_prov_ruc}").ToListAsync();
+            var result = await _context.OrdenCompraResponse.FromSqlInterpolated($"exec oc_get_orden_compra {p_fi.Date}, {p_ff.Date}, {p_fid.Date}, {p_ffd.Date}, {p_estado}, {p_filtrosadd}, {p_prov_rs}, {p_prov_ruc}, {tipoEmbarque}").ToListAsync();
             if (result == null) return new object[] { };
             return result;
         }

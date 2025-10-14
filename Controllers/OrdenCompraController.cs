@@ -13,9 +13,9 @@ public class OrdenCompraController : _BaseController
 {
     public OrdenCompraController(ProveedorContext context) : base(context) { }
 
-    [HttpGet("all/{estado}/{filtrosadd}/{provrs}/{fecha_inicio}/{fecha_fin}/{fecha_inicio_doc}/{fecha_fin_doc}")]
+    [HttpGet("all/{estado}/{filtrosadd}/{provrs}/{fecha_inicio}/{fecha_fin}/{fecha_inicio_doc}/{fecha_fin_doc}/{tipoEmbarque}")]
     public async Task<ActionResult<object>> GetItems(int estado, int filtrosadd, string? provrs, string fecha_inicio, string fecha_fin, 
-                                                    string fecha_inicio_doc, string fecha_fin_doc)
+                                                    string fecha_inicio_doc, string fecha_fin_doc, string? tipoEmbarque)
     {
         int roleSession = Int32.Parse(User.Claims.ToList()[4].Value);
         string rucProvSession = User.Claims.ToList()[0].Value;
@@ -28,9 +28,13 @@ public class OrdenCompraController : _BaseController
             string rucProv = roleSession == 2 ? rucProvSession : "";
             string _provrs = roleSession == 2 ? "" : provrs ?? "".ToUpper();
 
+            if (string.IsNullOrWhiteSpace(tipoEmbarque) || tipoEmbarque == "_")
+                tipoEmbarque = null;
+
+
             // var result = await new OrdenCompraService(_context).GetAllAsync(fi, ff, estado, _provrs, rucProv);
             var result = await new OrdenCompraService(_context).GetAllSPAsync(fi, ff, estado, filtrosadd, 
-                fid, ffd,_provrs, rucProv);
+                fid, ffd,_provrs, rucProv, tipoEmbarque);
             return result;
         }
         catch (System.Exception)
