@@ -23,7 +23,7 @@ public class ProveedorBCTSService
         _password = webServiceBctsConfig.User.Password;
         _grantType = webServiceBctsConfig.User.GrantType;
     }
-    
+
     public async Task<string> GetAccessTokenBCTS()
     {
         var data = new Dictionary<string, string>
@@ -32,13 +32,13 @@ public class ProveedorBCTSService
             { "password", _password },
             { "grant_type", _grantType }
         };
-        
+
         using var httpClient = new HttpClient();
 
         // Realizar la solicitud POST y obtener el token
         var postData = new FormUrlEncodedContent(data);
         HttpResponseMessage response = null;
-            
+
         try
         {
             response = await httpClient.PostAsync(_urlGetTokenBCTS, postData);
@@ -57,7 +57,7 @@ public class ProveedorBCTSService
             // Leer y deserializar la respuesta JSON
             var responseContent = await response.Content.ReadAsStringAsync();
             var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(responseContent);
-            
+
             System.Diagnostics.Debug.WriteLine("Token: " + tokenResponse?.access_token);
             // Retornar el access token
             return tokenResponse?.access_token;
@@ -69,7 +69,7 @@ public class ProveedorBCTSService
             return null;
         }
     }
-    
+
     public async Task<string> ValidaComprobanteBCTS(string token, 
                                                string ruc, 
                                                string razonSocial, 
@@ -132,17 +132,18 @@ public class ProveedorBCTSService
         return null;
     }
 
-     public async Task<string> EnviarComprobanteBCTS(string token, 
-                                                    string ruc, 
+
+    public async Task<string> EnviarComprobanteBCTS(string token,
+                                                    string ruc,
                                                     string nombreArchivo,
                                                     string data,
                                                     string embarque,
                                                     List<Adjunto> listaAdjuntos)
-     {
-         try
-         {
-             // Crear la estructura del JSON con la lista de adjuntos dinámica
-             var jsonBody = $@"{{
+    {
+        try
+        {
+            // Crear la estructura del JSON con la lista de adjuntos dinámica
+            var jsonBody = $@"{{
                 ""ListaEmpresasXConjunto"": {{
                     ""INKA"": [
                         {{
@@ -211,5 +212,5 @@ public class ProveedorBCTSService
             // Manejar otros errores
             return ex.Message;
         }
-     }
+    }
 }

@@ -626,7 +626,7 @@ public class OrdenCompraRequisitoController : _BaseController
         // Devolver los valores como una tupla
         return (fileBase64, nombreArchivo);
     }
-    
+
     private async Task<(string fileBase64, string nombreArchivo, List<Adjunto>)> buildInformationExactusAsync(string sourcePath,
             string filePrefix, List<Adjunto> adjuntos, string rucProvSession, string subcarpeta, bool nota_credito = false)
     {
@@ -634,35 +634,38 @@ public class OrdenCompraRequisitoController : _BaseController
         string nombreArchivo = "";
         string bucleFileBase64 = "";
         string bucleNombreArchivo = "";
-        
+
         try
         {
             await Task.Run(() =>
             {
                 // Código de ProcesarArchivos 
                 IEnumerable<string> files;
-                
-                if (nota_credito) {
+
+                if (nota_credito)
+                {
                     files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}__5__*.*")
                         .Concat(Directory.EnumerateFiles(sourcePath, $"{filePrefix}__6__*.*"))
                         .ToList();
-                } else {
+                }
+                else
+                {
                     Console.WriteLine($"Ruta accedida: '{sourcePath}'");
                     Console.WriteLine($"Existe directorio? {Directory.Exists(sourcePath)}");
 
                     //files = Directory.EnumerateFiles(@"\\192.168.10.116\\INKATESTPROVEEDOR", $"{filePrefix}"); // localmente
                     files = Directory.EnumerateFiles(sourcePath, $"{filePrefix}*.*"); //produccion
                 }
-                
+
                 int xmlCounter = 0; // Contador para archivos XML
-                
+
                 foreach (var file in files)
                 {
                     string fileName = Path.GetFileName(file);
 
                     if (fileName.Contains(filePrefix))
                     {
-                        var archivoInfo = new Adjunto {  };
+                        var archivoInfo = new Adjunto { };
                         if (Path.GetExtension(file).Equals(".xml", StringComparison.OrdinalIgnoreCase))
                         {
                             // Incrementamos el contador para archivos XML
@@ -679,10 +682,11 @@ public class OrdenCompraRequisitoController : _BaseController
                             // Agregar información del XML al objeto archivoInfo
                             archivoInfo.NombreArchivo = bucleNombreArchivo;  // Nombre del archivo XML
                             archivoInfo.Data = bucleFileBase64;  // Contenido codificado en Base64
-                            
-                            if (xmlCounter == 1) { // Devolver la informacion de la factua Nombre y base64XML
+
+                            if (xmlCounter == 1)
+                            { // Devolver la informacion de la factua Nombre y base64XML
                                 fileBase64 = bucleFileBase64;
-                                nombreArchivo = bucleNombreArchivo;  
+                                nombreArchivo = bucleNombreArchivo;
                             }
                             else
                             {
@@ -712,7 +716,9 @@ public class OrdenCompraRequisitoController : _BaseController
         // Devolver los valores como una tupla
         return (fileBase64, nombreArchivo, adjuntos);
     }
-    
+
+
+
     // private async Task<bool> EnviarCorreo2Async(string asunto, string htmlBody)
     // {
     //     bool status = false;
@@ -728,7 +734,10 @@ public class OrdenCompraRequisitoController : _BaseController
 
     //     return status;
     // }
-    
+
+
+
+
     private string renombrar(string name)
     {
         // 1 DOCUMENTO (PDF)

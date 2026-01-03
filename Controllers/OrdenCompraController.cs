@@ -28,9 +28,6 @@ public class OrdenCompraController : _BaseController
             string rucProv = roleSession == 2 ? rucProvSession : "";
             string _provrs = roleSession == 2 ? "" : provrs ?? "".ToUpper();
 
-            if (string.IsNullOrWhiteSpace(tipoEmbarque) || tipoEmbarque == "_")
-                tipoEmbarque = null;
-
 
             // var result = await new OrdenCompraService(_context).GetAllAsync(fi, ff, estado, _provrs, rucProv);
             var result = await new OrdenCompraService(_context).GetAllSPAsync(fi, ff, estado, filtrosadd, 
